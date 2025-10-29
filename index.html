@@ -1,145 +1,365 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Birthday 💖</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday — Ucapan Personal</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #f9f7f7, #e3d5ca);
-      overflow-x: hidden;
+    :root{
+      --bg1: #f9f7f7;
+      --pastel-blue: #c9d6df;
+      --pastel-beige: #f0ece2;
+      --pastel-cream: #e3d5ca;
+      --soft-gray: #e8e8e8;
+      --accent: rgba(200, 180, 180, 0.08);
     }
 
-    /* Fade-in intro */
-    .fade-in {
-      animation: fadeIn 2s ease-in forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+    /* global fonts */
+    body { font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #333; }
+
+    /* fade-in for intro */
+    .fade-soft { animation: fadeSoft 900ms ease-in-out both; }
+    @keyframes fadeSoft {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Typing animation */
-    .typing::after {
-      content: '|';
-      animation: blink 0.8s infinite;
+    /* typing animation caret */
+    .typing { border-right: 2px solid rgba(0,0,0,0.12); padding-right: 6px; white-space: pre-wrap; }
+
+    /* balloon float */
+    .balloon {
+      width: 36px; height: 48px; border-radius: 50% 50% 50% 50%;
+      position: absolute; bottom: -80px;
+      opacity: 0.95;
+      animation: floatUp linear infinite;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     }
-    @keyframes blink {
-      50% { opacity: 0; }
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(0.9); opacity: 0.85; }
+      50% { transform: translateY(-40vh) scale(1.02); }
+      to { transform: translateY(-90vh) scale(1); opacity: 0.95; }
     }
 
-    /* Confetti animation */
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background-color: #f0ece2;
-      top: -10px;
-      animation: fall 3s linear infinite;
-      opacity: 0.8;
+    /* confetti simple */
+    .confetti-piece {
+      width: 8px; height: 12px; position: absolute; transform: rotate(0);
+      animation: confettiFall linear forwards;
     }
-    @keyframes fall {
-      to { transform: translateY(100vh) rotate(360deg); }
+    @keyframes confettiFall {
+      0% { transform: translateY(-10vh) rotate(0) ; opacity: 1; }
+      100% { transform: translateY(80vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* candle flame */
+    .flame {
+      width: 10px; height: 14px; background: radial-gradient(circle at 40% 30%, #ffd36b, #ff9f68);
+      border-radius: 50%;
+      transform-origin: center bottom;
+      animation: flicker 350ms infinite ease-in-out;
+      filter: blur(.3px);
+    }
+    @keyframes flicker {
+      0% { transform: translateY(0) scaleY(1); opacity: 1; }
+      50% { transform: translateY(-1px) scaleY(1.06); opacity: .92; }
+      100% { transform: translateY(0) scaleY(1); opacity: 1; }
+    }
+
+    /* smooth hide/show */
+    .smooth-hidden { transition: opacity .45s ease, transform .45s ease; opacity: 0; transform: translateY(6px); pointer-events: none; }
+    .smooth-visible { transition: opacity .45s ease, transform .45s ease; opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    /* small shadow card */
+    .soft-card { background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); border-radius: 14px; box-shadow: 0 8px 30px rgba(16,24,40,0.06); }
+
+    /* responsive gallery grid on small screens */
+    @media (max-width:640px){
+      .gallery-cols { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
   </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen text-gray-700">
+<body class="min-h-screen antialiased" style="background: linear-gradient(135deg,var(--pastel-beige), var(--bg1));">
 
-  <!-- Intro Screen -->
-  <section id="intro" class="flex flex-col items-center justify-center min-h-screen bg-[#f9f7f7] text-center fade-in fixed inset-0 z-50">
-    <h1 class="text-4xl md:text-6xl font-playfair mb-6 text-[#c9d6df]">🎉 Happy Birthday, [Nama Teman]! 🎂</h1>
-    <button id="openBtn" class="bg-[#e3d5ca] hover:bg-[#c9d6df] text-gray-700 px-6 py-3 rounded-2xl font-semibold transition duration-500 ease-in-out">Open 🎁</button>
-  </section>
+  <!-- Floating containers for balloons/confetti -->
+  <div id="balloon-layer" class="pointer-events-none fixed inset-0 overflow-hidden z-10"></div>
+  <div id="confetti-layer" class="pointer-events-none fixed inset-0 overflow-hidden z-20"></div>
 
-  <!-- Main Content -->
-  <main id="mainContent" class="hidden flex-col items-center justify-center p-6 space-y-8 text-center">
-    <h2 class="text-3xl md:text-4xl font-playfair text-[#c9d6df] fade-in">💖 For You 💖</h2>
-    <p id="message" class="text-lg md:text-xl max-w-xl typing"></p>
+  <!-- Page wrapper -->
+  <main class="min-h-screen flex items-center justify-center px-6 py-12">
 
-    <!-- Foto teman -->
-    <img src="https://via.placeholder.com/200" alt="Foto Teman" class="rounded-full shadow-lg w-48 h-48 object-cover border-4 border-[#f0ece2] transition duration-500 ease-in-out hover:scale-105">
+    <!-- Card container -->
+    <section id="app-card" class="w-full max-w-4xl soft-card p-8 md:p-12 rounded-2xl relative z-30">
 
-    <!-- Galeri -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-    </div>
+      <!-- Top area: brand / small header -->
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-white/60 flex items-center justify-center text-2xl font-playfair" style="font-family: 'Playfair Display', serif;">💌</div>
+          <div>
+            <h1 class="text-lg font-semibold" style="font-family: 'Playfair Display', serif;">Warm Wishes</h1>
+            <p class="text-sm text-gray-500">Minimal & pastel birthday card</p>
+          </div>
+        </div>
 
-    <!-- Musik -->
-    <audio id="bgMusic" loop>
-      <source src="https://cdn.pixabay.com/download/audio/2022/08/04/audio_3b6a51062e.mp3?filename=sunrise-music-114337.mp3" type="audio/mpeg">
-    </audio>
-    <button id="musicBtn" class="bg-[#c9d6df] px-4 py-2 rounded-xl text-gray-700 transition duration-500 ease-in-out hover:bg-[#e3d5ca]">Play Music 🎵</button>
+        <!-- Music controls -->
+        <div class="flex items-center gap-3">
+          <button id="music-toggle" class="transition ease-in-out duration-500 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border border-transparent hover:border-gray-200" aria-pressed="false">
+            <svg id="music-icon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-2v13" />
+            </svg>
+            <span class="text-xs">Play music</span>
+          </button>
+          <!-- small help text -->
+          <span class="hidden sm:inline text-xs text-gray-400">Tap to play</span>
+        </div>
+      </header>
 
-    <!-- Tombol Surprise -->
-    <button id="surpriseBtn" class="bg-[#f0ece2] px-6 py-3 rounded-2xl text-gray-700 font-semibold transition duration-500 ease-in-out hover:bg-[#c9d6df]">🎁 Surprise!</button>
-    <div id="surpriseMessage" class="hidden text-2xl mt-4 text-[#c9d6df] font-playfair fade-in">💌 You are one of the most amazing people I’ve ever met 💖</div>
+      <!-- Two main panes: left (intro/prompt) and right (preview/intro) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- LEFT: Opening / Input -->
+        <div id="opening-pane" class="p-4 md:p-6 rounded-lg" style="background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.55));">
+          <div class="mb-4">
+            <h2 class="text-2xl font-semibold fade-soft" style="font-family: 'Playfair Display', serif;">Buat ucapan untuk siapa?</h2>
+            <p class="text-sm text-gray-500 mt-1">Masukkan nama — nanti akan otomatis mengganti seluruh teks.</p>
+          </div>
+
+          <div class="space-y-3">
+            <label for="nameInput" class="sr-only">Nama penerima</label>
+            <input id="nameInput" type="text" placeholder="Masukkan nama (mis. Aisyah)" class="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-100 transition duration-300" />
+
+            <div class="flex gap-3">
+              <button id="previewBtn" class="flex-1 py-2 rounded-md transition duration-500 ease-in-out text-white bg-gray-700 hover:bg-gray-600">Preview</button>
+              <button id="openBtn" class="flex-1 py-2 rounded-md transition duration-500 ease-in-out border border-gray-200 bg-white hover:bg-gray-50">Open</button>
+            </div>
+
+            <div class="text-xs text-gray-400">Contoh: ketik "Rina" lalu tekan Open — seluruh teks akan memakai nama itu.</div>
+          </div>
+
+          <!-- small gallery preview -->
+          <div class="mt-6">
+            <h3 class="text-sm text-gray-600 mb-2">Preview gallery</h3>
+            <div class="grid grid-cols-3 gap-2 gallery-cols">
+              <div class="rounded-lg overflow-hidden bg-gray-100 h-20 flex items-center justify-center text-xs text-gray-500">Foto 1</div>
+              <div class="rounded-lg overflow-hidden bg-gray-100 h-20 flex items-center justify-center text-xs text-gray-500">Foto 2</div>
+              <div class="rounded-lg overflow-hidden bg-gray-100 h-20 flex items-center justify-center text-xs text-gray-500">Foto 3</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Intro / intro-screen -->
+        <div class="p-6 rounded-lg flex flex-col items-center justify-center" style="background: linear-gradient(180deg, rgba(233, 229, 222, 0.5), rgba(249,247,247,0.6));">
+          <div id="intro-screen" class="w-full text-center">
+            <div class="mb-4">
+              <h2 id="introTitle" class="text-3xl md:text-4xl font-semibold" style="font-family: 'Playfair Display', serif;">Happy Birthday</h2>
+              <p id="introName" class="text-xl text-gray-600 mt-1 opacity-80 fade-soft" style="font-family: 'Playfair Display', serif;">[Nama]</p>
+            </div>
+
+            <div class="mt-6">
+              <button id="openFromIntro" class="px-6 py-3 rounded-full border border-gray-200 transition duration-500 ease-in-out hover:scale-105">Open</button>
+            </div>
+
+            <p class="mt-4 text-xs text-gray-400">Klik 'Open' untuk melihat ucapan lengkap + kejutan 🎉</p>
+          </div>
+
+          <!-- hidden 'main preview' snippet -->
+          <div id="mini-preview" class="mt-6 w-full smooth-hidden">
+            <div class="rounded-lg p-4 bg-white/60">
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">Foto</div>
+                <div>
+                  <div class="text-sm font-medium">Ucapan singkat untuk <span id="miniName" class="font-semibold">[Nama]</span></div>
+                  <div class="text-xs text-gray-500">Contoh teks hangat & personal</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div> <!-- end grid -->
+
+      <!-- MAIN screen (hidden initially) -->
+      <section id="main-screen" class="mt-8 smooth-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Left column: big message + candles -->
+          <div class="lg:col-span-2 soft-card p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-28 h-28 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+                <!-- Placeholder user photo -->
+                <img id="mainPhoto" src="https://via.placeholder.com/200x200.png?text=Foto" alt="Foto teman" class="object-cover w-full h-full" />
+              </div>
+
+              <div class="flex-1">
+                <h2 id="mainTitle" class="text-2xl md:text-3xl font-semibold" style="font-family: 'Playfair Display', serif;">Untuk <span id="mainName">[Nama]</span></h2>
+                <p class="text-sm text-gray-500 mt-1">Semoga hari ini penuh tawa dan hangatnya doa.</p>
+
+                <!-- typing message -->
+                <div class="mt-4 p-4 rounded-md bg-white/70 border border-gray-100">
+                  <p id="typedMessage" class="text-gray-700 typing"></p>
+                </div>
+
+                <!-- candles visual -->
+                <div class="mt-6 flex items-center gap-3">
+                  <div class="w-28 h-12 bg-gradient-to-b from-white to-gray-100 rounded-md flex items-center justify-center">
+                    <div class="flex gap-3 items-end">
+                      <div class="flex flex-col items-center gap-1">
+                        <div class="flame"></div>
+                        <div class="w-2 h-6 bg-pink-200 rounded"></div>
+                      </div>
+                      <div class="flex flex-col items-center gap-1">
+                        <div class="flame"></div>
+                        <div class="w-2 h-6 bg-yellow-200 rounded"></div>
+                      </div>
+                      <div class="flex flex-col items-center gap-1">
+                        <div class="flame"></div>
+                        <div class="w-2 h-6 bg-blue-200 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button id="surpriseBtn" class="ml-auto px-4 py-2 rounded-md border border-gray-200 transition duration-500 hover:scale-105">Surprise</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- full message text (hidden but typed) -->
+            <div class="mt-6 text-sm text-gray-600">
+              <p class="leading-relaxed">Kamu layak mendapatkan semua kebahagiaan. Hari ini adalah milikmu — semoga semua impian mendekat dan hari-hari ke depan penuh berkah.</p>
+            </div>
+          </div>
+
+          <!-- Right column: gallery + controls -->
+          <aside class="soft-card p-6">
+            <h3 class="text-lg font-semibold mb-3">Galeri</h3>
+            <div class="grid gallery-cols grid-cols-3 gap-3">
+              <!-- gallery items -->
+              <div class="rounded-lg overflow-hidden h-20 flex items-center justify-center bg-gray-100 hover:scale-105 transition duration-500">Foto A</div>
+              <div class="rounded-lg overflow-hidden h-20 flex items-center justify-center bg-gray-100 hover:scale-105 transition duration-500">Foto B</div>
+              <div class="rounded-lg overflow-hidden h-20 flex items-center justify-center bg-gray-100 hover:scale-105 transition duration-500">Foto C</div>
+              <div class="rounded-lg overflow-hidden h-20 flex items-center justify-center bg-gray-100 hover:scale-105 transition duration-500">Foto D</div>
+              <div class="rounded-lg overflow-hidden h-20 flex items-center justify-center bg-gray-100 hover:scale-105 transition duration-500">Foto E</div>
+              <div class="rounded-lg overflow-hidden h-20 flex items-center justify-center bg-gray-100 hover:scale-105 transition duration-500">Foto F</div>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+              <button id="balloonBtn" class="flex-1 py-2 rounded-md border border-gray-200 transition duration-500">Balloons</button>
+              <button id="confettiBtn" class="flex-1 py-2 rounded-md border border-gray-200 transition duration-500">Confetti</button>
+            </div>
+
+            <div class="mt-4 text-xs text-gray-400">
+              <p>Tip: Klik 'Music' di atas untuk memulai musik latar. Gunakan tombol 'Surprise' untuk pesan rahasia.</p>
+            </div>
+          </aside>
+
+        </div>
+      </section>
+
+    </section>
   </main>
 
+  <!-- secret overlay -->
+  <div id="secretOverlay" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-40">
+    <div class="max-w-lg p-6 rounded-xl bg-white/90 soft-card">
+      <h3 class="text-xl font-semibold" style="font-family: 'Playfair Display', serif;">Surprise 🎁</h3>
+      <p id="secretText" class="mt-3 text-gray-700">[Pesan rahasia akan muncul di sini]</p>
+      <div class="mt-4 text-right">
+        <button id="closeSecret" class="px-4 py-2 rounded-md border border-gray-200">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- audio (optional) -->
+  <audio id="bgMusic" loop preload="none">
+    <source src="https://cdn.pixabay.com/download/audio/2021/08/08/audio_3d4fd3d87d.mp3?filename=happy-acoustic-14082.mp3" type="audio/mpeg">
+    <!-- placeholder source; user can replace with their own file -->
+  </audio>
+
+  <!-- JavaScript: interactions & animations -->
   <script>
+    // Elements
+    const nameInput = document.getElementById('nameInput');
+    const previewBtn = document.getElementById('previewBtn');
     const openBtn = document.getElementById('openBtn');
-    const intro = document.getElementById('intro');
-    const mainContent = document.getElementById('mainContent');
-    const message = document.getElementById('message');
-    const text = "Wishing you a day filled with laughter, love, and the things you enjoy the most. You deserve all the happiness in the world. Happy Birthday! 💕";
+    const openFromIntro = document.getElementById('openFromIntro');
+    const introName = document.getElementById('introName');
+    const introTitle = document.getElementById('introTitle');
+    const miniName = document.getElementById('miniName');
+    const miniPreview = document.getElementById('mini-preview');
+    const introScreen = document.getElementById('intro-screen');
 
-    openBtn.addEventListener('click', () => {
-      intro.classList.add('hidden');
-      mainContent.classList.remove('hidden');
-      typeMessage();
-      createConfetti();
-    });
+    const mainScreen = document.getElementById('main-screen');
+    const mainName = document.getElementById('mainName');
+    const typedMessageEl = document.getElementById('typedMessage');
+    const mainPhoto = document.getElementById('mainPhoto');
 
-    // Typing effect
-    let index = 0;
-    function typeMessage() {
-      if (index < text.length) {
-        message.innerHTML += text.charAt(index);
-        index++;
-        setTimeout(typeMessage, 50);
-      }
-    }
-
-    // Music toggle
-    const musicBtn = document.getElementById('musicBtn');
-    const bgMusic = document.getElementById('bgMusic');
-    let playing = false;
-    musicBtn.addEventListener('click', () => {
-      if (!playing) {
-        bgMusic.play();
-        musicBtn.textContent = "Pause Music ⏸️";
-      } else {
-        bgMusic.pause();
-        musicBtn.textContent = "Play Music 🎵";
-      }
-      playing = !playing;
-    });
-
-    // Surprise button
     const surpriseBtn = document.getElementById('surpriseBtn');
-    const surpriseMessage = document.getElementById('surpriseMessage');
-    surpriseBtn.addEventListener('click', () => {
-      surpriseMessage.classList.toggle('hidden');
+    const secretOverlay = document.getElementById('secretOverlay');
+    const secretText = document.getElementById('secretText');
+    const closeSecret = document.getElementById('closeSecret');
+
+    const balloonBtn = document.getElementById('balloonBtn');
+    const confettiBtn = document.getElementById('confettiBtn');
+    const balloonLayer = document.getElementById('balloon-layer');
+    const confettiLayer = document.getElementById('confetti-layer');
+
+    const musicToggle = document.getElementById('music-toggle');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicIcon = document.getElementById('music-icon');
+
+    // default message (multiline)
+    const messageTemplate = `Hai {NAME},\n\nSelamat ulang tahun! Semoga hari ini membawa senyuman yang tak henti-henti, kebahagiaan yang tulus, dan keberkahan sepanjang tahun.\n\nTerima kasih sudah menjadi dirimu — hangat, unik, dan berarti. Semoga segala impianmu semakin mendekat. 🎂\n\nSalam sayang,`;
+
+    // typing function
+    function typeText(targetEl, text, speed = 25) {
+      targetEl.textContent = '';
+      let i = 0;
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          targetEl.textContent += text.charAt(i);
+          i++;
+          if (i >= text.length) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, speed);
+      });
+    }
+
+    // Helper: set name across UI
+    function setName(name){
+      const safe = name?.trim() || "[Nama]";
+      introName.textContent = safe;
+      miniName.textContent = safe;
+      mainName.textContent = safe;
+      document.title = `Happy Birthday — ${safe}`;
+      // update typed message template
+      const msg = messageTemplate.replace(/{NAME}/g, safe);
+      // reset typing
+      typedMessageEl.textContent = '';
+      // kick typing with a tiny delay for effect
+      setTimeout(()=> typeText(typedMessageEl, msg, 28), 500);
+    }
+
+    // Preview action
+    previewBtn.addEventListener('click', () => {
+      const n = nameInput.value || nameInput.placeholder || 'Teman';
+      setName(n);
+      // show mini preview
+      miniPreview.classList.remove('smooth-hidden');
+      miniPreview.classList.add('smooth-visible');
+      // hide after few seconds
+      setTimeout(() => {
+        miniPreview.classList.remove('smooth-visible');
+        miniPreview.classList.add('smooth-hidden');
+      }, 4000);
     });
 
-    // Confetti animation
-    function createConfetti() {
-      for (let i = 0; i < 30; i++) {
-        const conf = document.createElement('div');
-        conf.classList.add('confetti');
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.backgroundColor = ['#e3d5ca', '#c9d6df', '#f0ece2'][Math.floor(Math.random()*3)];
-        conf.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        document.body.appendChild(conf);
-        setTimeout(() => conf.remove(), 5000);
-      }
-    }
-  </script>
-</body>
-</html>
+    // Open actions (both buttons)
