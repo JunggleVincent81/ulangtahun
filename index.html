@@ -1,172 +1,202 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Birthday 💖</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday — Personalized</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    :root {
+      --bg: #faf5ff;
+    }
+    html, body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #f9f7f7, #e3d5ca);
+      background: linear-gradient(180deg, #fdf2f8, #f3e8ff, #e0f2fe);
       overflow-x: hidden;
     }
 
-    /* Fade-in animation */
-    .fade-in {
-      animation: fadeIn 2s ease-in forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    /* Typing animation */
-    .typing::after {
-      content: '|';
-      animation: blink 0.8s infinite;
-    }
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-
-    /* Confetti animation */
-    .confetti {
+    #confetti-canvas {
       position: fixed;
-      width: 10px;
-      height: 10px;
-      background-color: #f0ece2;
-      top: -10px;
-      animation: fall 3s linear infinite;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeIn 1.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bounce-slow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-slow {
+      animation: bounce-slow 3s infinite;
+    }
+
+    /* Dekorasi balon */
+    .balloon {
+      position: absolute;
+      bottom: -150px;
+      width: 60px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent 70%), var(--color);
+      animation: float 10s ease-in-out infinite;
       opacity: 0.8;
     }
-    @keyframes fall {
-      to { transform: translateY(100vh) rotate(360deg); }
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-300px) rotate(10deg); }
+      100% { transform: translateY(0) rotate(-10deg); }
     }
   </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen text-gray-700">
+<body class="min-h-screen flex items-center justify-center p-6 relative">
 
-  <!-- Step 1: Input Nama -->
-  <section id="nameInputSection" class="flex flex-col items-center justify-center min-h-screen bg-[#f9f7f7] text-center fade-in fixed inset-0 z-50">
-    <h1 class="text-3xl md:text-5xl font-playfair mb-6 text-[#c9d6df]">Masukkan Nama Ulang Tahun 🎂</h1>
-    <input id="nameInput" type="text" placeholder="Contoh: Dinda" class="border border-[#c9d6df] rounded-xl px-4 py-2 text-center mb-4 w-64 focus:outline-none focus:ring-2 focus:ring-[#c9d6df]">
-    <button id="nextBtn" class="bg-[#e3d5ca] hover:bg-[#c9d6df] text-gray-700 px-6 py-3 rounded-2xl font-semibold transition duration-500 ease-in-out">Next ➡️</button>
-  </section>
+  <!-- confetti -->
+  <canvas id="confetti-canvas"></canvas>
 
-  <!-- Step 2: Intro Screen -->
-  <section id="intro" class="hidden flex-col items-center justify-center min-h-screen bg-[#f9f7f7] text-center fade-in fixed inset-0 z-40">
-    <h1 id="introText" class="text-4xl md:text-6xl font-playfair mb-6 text-[#c9d6df]"></h1>
-    <button id="openBtn" class="bg-[#e3d5ca] hover:bg-[#c9d6df] text-gray-700 px-6 py-3 rounded-2xl font-semibold transition duration-500 ease-in-out">Open 🎁</button>
-  </section>
+  <!-- Dekorasi balon -->
+  <div class="balloon" style="left:10%; --color:#fbcfe8; animation-delay:0s;"></div>
+  <div class="balloon" style="left:40%; --color:#c7d2fe; animation-delay:2s;"></div>
+  <div class="balloon" style="left:70%; --color:#fde68a; animation-delay:4s;"></div>
 
-  <!-- Step 3: Main Content -->
-  <main id="mainContent" class="hidden flex-col items-center justify-center p-6 space-y-8 text-center">
-    <h2 class="text-3xl md:text-4xl font-playfair text-[#c9d6df] fade-in">💖 For You 💖</h2>
-    <p id="message" class="text-lg md:text-xl max-w-xl typing"></p>
+  <div id="app" class="w-full max-w-xl z-10">
 
-    <!-- Foto teman -->
-    <img src="https://via.placeholder.com/200" alt="Foto Teman" class="rounded-full shadow-lg w-48 h-48 object-cover border-4 border-[#f0ece2] transition duration-500 ease-in-out hover:scale-105">
+    <!-- Input nama -->
+    <section id="page-landing" class="bg-white/70 backdrop-blur-xl p-8 rounded-2xl shadow-md text-center border border-pink-100">
+      <h1 class="text-3xl font-semibold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Ada sedikit kejutan nih 🎉</h1>
+      <p class="text-gray-600 text-sm mb-6">Masukkan nama dulu ya</p>
 
-    <!-- Galeri -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-      <img src="https://via.placeholder.com/150" class="rounded-xl shadow-md hover:scale-105 transition duration-500 ease-in-out" alt="">
-    </div>
+      <input id="nameInput" type="text" placeholder="Nama kamu..." class="border w-full p-3 rounded-lg mb-4 shadow-sm focus:ring-2 focus:ring-pink-200 outline-none" />
+      <button id="startBtn" class="bg-gradient-to-r from-pink-300 to-purple-300 px-6 py-2 rounded-lg shadow hover:scale-105 transition text-white font-medium">Mulai 🎈</button>
+    </section>
 
-    <!-- Musik -->
-    <audio id="bgMusic" loop>
-      <source src="https://cdn.pixabay.com/download/audio/2022/08/04/audio_3b6a51062e.mp3?filename=sunrise-music-114337.mp3" type="audio/mpeg">
-    </audio>
-    <button id="musicBtn" class="bg-[#c9d6df] px-4 py-2 rounded-xl text-gray-700 transition duration-500 ease-in-out hover:bg-[#e3d5ca]">Play Music 🎵</button>
+    <!-- Halaman ucapan -->
+    <section id="page-main" class="hidden relative bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl mt-6 text-center overflow-hidden">
 
-    <!-- Tombol Surprise -->
-    <button id="surpriseBtn" class="bg-[#f0ece2] px-6 py-3 rounded-2xl text-gray-700 font-semibold transition duration-500 ease-in-out hover:bg-[#c9d6df]">🎁 Surprise!</button>
-    <div id="surpriseMessage" class="hidden text-2xl mt-4 text-[#c9d6df] font-playfair fade-in">💌 You are one of the most amazing people I’ve ever met 💖</div>
-  </main>
+      <!-- dekorasi -->
+      <div class="absolute -top-10 -left-10 w-40 h-40 bg-pink-100 rounded-full blur-3xl opacity-70 animate-pulse"></div>
+      <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-70 animate-pulse"></div>
+
+      <!-- kue ulang tahun -->
+      <div class="flex justify-center mb-6 relative z-10">
+        <img src="https://cdn-icons-png.flaticon.com/512/7460/7460333.png" alt="cake" class="w-24 h-24 animate-bounce-slow">
+      </div>
+
+      <!-- judul -->
+      <h2 id="greeting" class="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">Happy Birthday!</h2>
+
+      <!-- teks ucapan -->
+      <p id="birthdayMessage" class="text-gray-700 text-base leading-relaxed max-w-md mx-auto mb-8"></p>
+
+      <!-- tombol hadiah -->
+      <div class="flex justify-center">
+        <button id="specialBtn" class="border border-gray-300 px-5 py-2 rounded-lg text-sm hover:bg-gray-100 transition">Lihat Hadiah 🎁</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Audio -->
+  <audio id="bgAudio" src="audio/ultah.mp3" type="audio/mpeg"></audio>
+
+  <!-- Video fullscreen -->
+  <video id="giftVideo" class="hidden fixed inset-0 w-full h-full bg-black z-50" controls>
+    <source src="video/hadiah.mp4" type="video/mp4">
+    Browser kamu tidak mendukung video.
+  </video>
 
   <script>
-    const nameInputSection = document.getElementById('nameInputSection');
-    const nameInput = document.getElementById('nameInput');
-    const nextBtn = document.getElementById('nextBtn');
-    const intro = document.getElementById('intro');
-    const introText = document.getElementById('introText');
-    const openBtn = document.getElementById('openBtn');
-    const mainContent = document.getElementById('mainContent');
-    const message = document.getElementById('message');
-    const text = "Wishing you a day filled with laughter, love, and the things you enjoy the most. You deserve all the happiness in the world. Happy Birthday! 💕";
+  // confetti setup
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, confetti = [];
+  function resize(){ w=canvas.width=innerWidth; h=canvas.height=innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  function rand(min,max){return Math.random()*(max-min)+min;}
+  function spawnConfetti(){ confetti=[]; for(let i=0;i<80;i++){confetti.push({x:rand(0,w),y:rand(-h,0),r:rand(3,8),color:['#FDE68A','#FBCFE8','#C7D2FE','#DCFCE7'][Math.floor(Math.random()*4)],speed:rand(1,3)});} }
+  function update(){ ctx.clearRect(0,0,w,h); confetti.forEach(p=>{p.y+=p.speed; if(p.y>h)p.y=-10; ctx.fillStyle=p.color; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();}); requestAnimationFrame(update);}
+  function startConfetti(){ spawnConfetti(); update(); }
 
-    let friendName = '';
+  // element references
+  const nameInput=document.getElementById('nameInput');
+  const startBtn=document.getElementById('startBtn');
+  const landing=document.getElementById('page-landing');
+  const main=document.getElementById('page-main');
+  const greeting=document.getElementById('greeting');
+  const specialBtn=document.getElementById('specialBtn');
+  const bgAudio=document.getElementById('bgAudio');
+  const giftVideo=document.getElementById('giftVideo');
 
-    // Step 1 -> Step 2
-    nextBtn.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      if (name === '') {
-        alert('Masukkan nama dulu ya!');
-        return;
-      }
-      friendName = name;
-      introText.textContent = `🎉 Happy Birthday, ${friendName}! 🎂`;
-      nameInputSection.classList.add('hidden');
-      intro.classList.remove('hidden');
+  const message = `🎉 Happy 25th Birthday! 🎉
+Selamat ulang tahun ya, semoga di usia yang ke-25 ini selalu diberi kesehatan, kelancaran rezeki, dan kebahagiaan yang gak ada habisnya.
+May all your plans and dreams come true, little by little.
+Semoga langkah kamu makin ringan, hati makin tenang, dan hidupnya selalu dikelilingi orang-orang baik.
+Keep being the good person you are — sabar, tulus, dan gak mudah nyerah.
+Wishing you all the best always ❤ Enjoy your special day!`;
+
+  startBtn.onclick=()=>{
+    const name=nameInput.value.trim()||'Teman';
+    localStorage.setItem('hb_name',name);
+    greeting.innerText=`Happy Birthday, ${name}! 🎉`;
+    landing.classList.add('hidden');
+    main.classList.remove('hidden');
+
+    document.querySelectorAll('#page-main p, #page-main h2').forEach((el,i)=>{
+      el.classList.add('fade-in');
+      el.style.animationDelay=`${i*0.5}s`;
     });
 
-    // Step 2 -> Step 3
-    openBtn.addEventListener('click', () => {
-      intro.classList.add('hidden');
-      mainContent.classList.remove('hidden');
-      typeMessage();
-      createConfetti();
-    });
+    startConfetti();
+    bgAudio.play().catch(()=>{});
 
-    // Typing effect
-    let index = 0;
-    function typeMessage() {
-      if (index < text.length) {
-        message.innerHTML += text.charAt(index);
-        index++;
-        setTimeout(typeMessage, 50);
-      }
-    }
-
-    // Music toggle
-    const musicBtn = document.getElementById('musicBtn');
-    const bgMusic = document.getElementById('bgMusic');
-    let playing = false;
-    musicBtn.addEventListener('click', () => {
-      if (!playing) {
-        bgMusic.play();
-        musicBtn.textContent = "Pause Music ⏸️";
-      } else {
-        bgMusic.pause();
-        musicBtn.textContent = "Play Music 🎵";
-      }
-      playing = !playing;
-    });
-
-    // Surprise button
-    const surpriseBtn = document.getElementById('surpriseBtn');
-    const surpriseMessage = document.getElementById('surpriseMessage');
-    surpriseBtn.addEventListener('click', () => {
-      surpriseMessage.classList.toggle('hidden');
-    });
-
-    // Confetti
-    function createConfetti() {
-      for (let i = 0; i < 30; i++) {
-        const conf = document.createElement('div');
-        conf.classList.add('confetti');
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.backgroundColor = ['#e3d5ca', '#c9d6df', '#f0ece2'][Math.floor(Math.random()*3)];
-        conf.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        document.body.appendChild(conf);
-        setTimeout(() => conf.remove(), 5000);
+    const textEl = document.getElementById('birthdayMessage');
+    let i = 0;
+    textEl.innerHTML = '';
+    function typeWriter() {
+      if (i < message.length) {
+        textEl.innerHTML += message.charAt(i);
+        i++;
+        setTimeout(typeWriter, 40);
       }
     }
+    typeWriter();
+  }
+
+  // tombol hadiah: video fullscreen
+  specialBtn.onclick=()=>{ 
+    giftVideo.classList.remove('hidden');
+    giftVideo.requestFullscreen().then(()=>{
+      giftVideo.play();
+    }).catch(()=>{
+      giftVideo.play();
+    });
+  };
+
+  // keluar fullscreen otomatis saat video selesai
+  giftVideo.onended = () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    giftVideo.classList.add('hidden');
+  };
+
+  const stored=localStorage.getItem('hb_name');
+  if(stored){ nameInput.value=stored; }
   </script>
 </body>
 </html>
